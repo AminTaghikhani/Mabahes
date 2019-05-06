@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<form action="/Home/UploadImage"
+      method="post"
+      enctype="multipart/form-data"  
+      >
+    <label>FirstName:</label>
+    <input type="text" name="firstName" />
+    <br />
+    <label>LastName:</label>
+    <input type="text" name="lastName" />
+    <br />
+    <label>Upload your Image:</label>
+    <input type="file" name="file" />
+    <br />
+    <button type="submit">Submit</button>
+</form>
