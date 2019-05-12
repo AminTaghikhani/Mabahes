@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Folder Include="Uploads\gs\" />
+    <Folder Include="Uploads\tr\" />
   </ItemGroup>
 
 </Project>

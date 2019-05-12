@@ -3,6 +3,20 @@
     ViewData["Title"] = "UploadImage";
 }
 
+
+<a href="@Url.Action("Thresholding",
+                     "Home",
+                     new {
+                             url = ViewData["imgUrlOut"],
+                             path = ViewData["imgPath"]
+                         })">
+    آستانه گذاری
+</a>
+
+<br />
+<hr />
+<br />
+
 <img src=@ViewData["imgUrl"] alt="Not found" width="300" height="300"/>
 
 <img src=@ViewData["imgUrlOut"] alt="Not found" width="300" height="300"/>

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using FileUploaderMVC.Models;
 using System.Drawing;
 
+using FileUploaderMVC.Logic;
+
 namespace FileUploaderMVC.Controllers
 {
     public class HomeController : Controller
@@ -22,11 +24,13 @@ namespace FileUploaderMVC.Controllers
         public IActionResult UploadImage() {
             var files = this.Request.Form.Files;
             var urls = new List<string>();
+            var paths = new List<string>();
             var outUrls = new List<string>();
             foreach (var file in files) {
                 if (file != null) {
-                    var path = @"./Uploads/" + file.FileName;
-                    var url = "/Uploads/" + file.FileName;
+                    var fileName = Guid.NewGuid()+ file.FileName.Substring(file.FileName.LastIndexOf("."));
+                    var path = @"./Uploads/" + fileName;
+                    var url = "/Uploads/" + fileName;
                     using (var fileStream = new FileStream(path, FileMode.Create))
                     {
                         file.CopyTo(fileStream);
@@ -63,17 +67,66 @@ namespace FileUploaderMVC.Controllers
                             outputImage.SetPixel(i, j, Color.FromArgb(pixels[i, j], pixels[i, j], pixels[i, j]));
                         }
                     }
-                    var outPath = @"./Uploads/gs/" + file.FileName;
-                    var outUrl  = "/Uploads/gs/"   + file.FileName;
+                    var outPath = @"./Uploads/gs/" + fileName;
+                    var outUrl  = "/Uploads/gs/"   + fileName;
                     outputImage.Save(outPath);
                     outUrls.Add(outUrl);
+                    paths.Add(outPath);
                 }
             }
 
             ViewData["imgUrl"] = urls[0];
             ViewData["imgUrlOut"] = outUrls[0];
+            ViewData["imgPath"]    = paths[0];
             return View();
         }
+
+
+
+        public IActionResult Thresholding(string path, string url) {
+            var bitmap = new Bitmap(path);
+            var pixels = new int[bitmap.Width, bitmap.Height];
+            for (int i = 0;
+                 i < bitmap.Width;
+                 i++)
+            {
+                for (int j = 0;
+                     j < bitmap.Height;
+                     j++)
+                {
+                    var pixel = bitmap.GetPixel(i,
+                                                j);
+                    var gs = (pixel.R + pixel.G + pixel.B) / 3;
+                    pixels[i,j] = ImageProcessing.Thresholding(gs,
+                                                 70);
+                }
+            }
+            var outputImage = new Bitmap(bitmap.Width, bitmap.Height);
+            for (int i = 0;
+                 i < bitmap.Width;
+                 i++)
+            {
+                for (int j = 0;
+                     j < bitmap.Height;
+                     j++)
+                {
+                    outputImage.SetPixel(i, j, Color.FromArgb(pixels[i, j], pixels[i, j], pixels[i, j]));
+                }
+            }
+
+            var fileName = Guid.NewGuid() + Path.GetExtension(path);
+            var outPath = @"./Uploads/tr/" + fileName;
+            var outUrl  = "/Uploads/tr/"   + fileName;
+            outputImage.Save(outPath);
+            ViewData["imgUrl"]    = url;
+            ViewData["imgUrlOut"] = outUrl;
+            ViewData["imgPath"]   = path;
+            return View();
+        }
+
+
+
+
 
         public IActionResult Privacy()
         {
