@@ -3,21 +3,98 @@
     ViewData["Title"] = "UploadImage";
 }
 
-
-<a href="@Url.Action("Thresholding",
-                     "Home",
-                     new {
-                             url = ViewData["imgUrlOut"],
-                             path = ViewData["imgPath"]
-                         })">
-    آستانه گذاری
-</a>
-
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">Home</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link im-op" href="#" data-operation="gs">GrayScale</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link im-op" href="#" data-operation="threshold">Threshold</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
 <br />
-<hr />
-<br />
+<div class="container">
+    <div class="row">
+        <div class="col-6 float-left">
+            <div class="card" style="width: 18rem;">
+                <img id="main" data-path="@ViewData["ImgPath"]" src="@ViewData["imgUrlOut"]" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Uploaded Image</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 float-right img-output">
+            <div class="card" style="width: 18rem;">
+                <img src="" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Output</h5>
+                </div>
+            </div>
+        </div>
 
-<img src=@ViewData["imgUrl"] alt="Not found" width="300" height="300"/>
+    </div>
+</div>
 
-<img src=@ViewData["imgUrlOut"] alt="Not found" width="300" height="300"/>
 
+
+<script>
+    const imgProcessing = {
+        selectors: {
+            navItem: '.im-op',
+            main: '#main',
+            out: '.img-output',
+            title: '.cart-title',
+        },
+        data: {
+            operation: 'operation',
+            path: 'path'
+        },
+        setup() {
+            this.clickEvents();
+        },
+        clickEvents() {
+            const context = this;
+            const targets = Array.from($(context.selectors.navItem))
+
+            targets.forEach(target => {
+                $(target).click(e => {
+                    const op = $(target).data(context.data.operation);
+                    context.fetchDate(op);
+                });
+            });
+        },
+        fetchDate(op) {
+            const context = this;
+            let thresholdValue = -1;
+            if (op === 'threshold') {
+                thresholdValue = prompt("Enter Threshold Value")
+            }
+            const path = $(context.selectors.main).data(context.data.path);
+            console.log(op, path)
+            $.ajax(`/Home/Operation?op=${op}&path=${path}&thresholdValue=${thresholdValue}`,
+                {
+                    method: 'GET',
+                    success: (data) => {
+                        if(data)
+                            $(`${context.selectors.out} img`).attr('src', data)
+                    },
+                    error: (data) => {
+                        console.log(data);
+                    }
+    
+                })
+        }
+    }
+    $(document).ready(() => {
+        imgProcessing.setup();
+    })
+</script>

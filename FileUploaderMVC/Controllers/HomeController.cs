@@ -80,8 +80,20 @@ namespace FileUploaderMVC.Controllers
             ViewData["imgPath"]    = paths[0];
             return View();
         }
-
-
+        [HttpGet]
+        public IActionResult Operation(string op,
+                                       string path, int thresholdValue) {
+            string url;
+            switch (op) {
+                case "gs":
+                    url = ImageProcessing.GrayScale(path);
+                    return Json(url);
+                case "threshold":
+                    url = ImageProcessing.Threshold(path, thresholdValue);
+                    return Json(url);
+            }
+            return Json(null);
+        }
 
         public IActionResult Thresholding(string path, string url) {
             var bitmap = new Bitmap(path);
